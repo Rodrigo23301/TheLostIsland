@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "SaveGamaData.generated.h"
+#include "SaveGameData.generated.h"
 
 /**
  * 
