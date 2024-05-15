@@ -7,7 +7,8 @@
 
 UBaseGameInstance::UBaseGameInstance() 
 {
-	maxHealth = 100;
+	maxHealth = 100.f;
+	currentHealth = 100.f;
 }
 
 void UBaseGameInstance::Init()
@@ -33,7 +34,7 @@ void UBaseGameInstance::SaveGame()
 	//If there is a valid SaveGame object to use for saving
 	if (dataToSave != nullptr)
 	{
-		dataToSave->health = maxHealth;
+		dataToSave->health = currentHealth;
 		UGameplayStatics::SaveGameToSlot(dataToSave, "Slot1", 0);
 	}
 	else if (!UGameplayStatics::DoesSaveGameExist("Slot1", 0))
@@ -51,7 +52,7 @@ void UBaseGameInstance::LoadGame()
 	//If there is valid dato to load
 	if (dataToLoad != nullptr)
 	{
-		maxHealth = dataToLoad->health;
+		currentHealth = dataToLoad->health;
 	}
 	else if (!UGameplayStatics::DoesSaveGameExist("Slot1", 0))
 	{
