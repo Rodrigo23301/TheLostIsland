@@ -16,7 +16,7 @@ class THELOSTISLAND_API UBaseGameInstance : public UGameInstance
 	
 public:
 
-	UPROPERTY(BlueprintReadWrite, Category = "Health")
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float maxHealth;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
