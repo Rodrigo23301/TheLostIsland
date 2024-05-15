@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "BaseGameInstance.h"
 #include "LoadGameButton.h"
 
 ULoadGameButton::ULoadGameButton()
@@ -14,4 +15,9 @@ void ULoadGameButton::ClickedButton()
 
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));
+
+	if (auto baseGameInstance = Cast<UBaseGameInstance>(GetGameInstance()))
+	{
+		baseGameInstance->LoadGame();
+	}
 }
