@@ -4,5 +4,6 @@
 #include "SaveGameData.h"
 
 USaveGameData::USaveGameData() {
-	health = 100;
+	health = 100.f;
+	characterPosition = FVector(0.f, 0.f, 0.f);
 }
