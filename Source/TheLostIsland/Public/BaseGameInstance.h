@@ -27,9 +27,9 @@ public:
 
 	virtual void Init() override;
 
-	void CreateSaveFile();
+	void CreateSaveFile(FString slotName);
 
-	void SaveGame();
+	void SaveGame(FString slotName);
 
-	void LoadGame();
+	void LoadGame(FString slotName);
 };
