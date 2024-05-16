@@ -15,6 +15,7 @@ class THELOSTISLAND_API UBaseGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
+	FVector characterPosition;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float maxHealth;

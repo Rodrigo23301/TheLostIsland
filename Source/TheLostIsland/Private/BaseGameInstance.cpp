@@ -4,6 +4,7 @@
 #include "BaseGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveGameData.h"
+#include "GameFramework/Character.h"
 
 UBaseGameInstance::UBaseGameInstance() 
 {
@@ -30,10 +31,12 @@ void UBaseGameInstance::SaveGame()
 {
 	//Initializa data to save
 	USaveGameData* dataToSave = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot("Slot1", 0));
+	FVector position = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
 	//If there is a valid SaveGame object to use for saving
 	if (dataToSave != nullptr)
 	{
+		dataToSave->characterPosition = position;
 		dataToSave->health = currentHealth;
 		UGameplayStatics::SaveGameToSlot(dataToSave, "Slot1", 0);
 	}
@@ -49,9 +52,21 @@ void UBaseGameInstance::LoadGame()
 	//Retrieve data to load
 	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot("Slot1", 0));
 
+	//Cast to MyCharacter
+	ACharacter* MyCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	//Variables to set the Character Location
+	bool bSweep = false;
+	FHitResult OutSweepHitResult;
+	ETeleportType Teleport = ETeleportType::None;
+
 	//If there is valid dato to load
 	if (dataToLoad != nullptr)
 	{
+		if (MyCharacter)
+		{
+			MyCharacter->SetActorLocation(dataToLoad->characterPosition, bSweep, &OutSweepHitResult, Teleport);
+		}
 		currentHealth = dataToLoad->health;
 	}
 	else if (!UGameplayStatics::DoesSaveGameExist("Slot1", 0))
