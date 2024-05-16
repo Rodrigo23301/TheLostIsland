@@ -18,5 +18,8 @@ public:
 	USaveGameData();
 
 	UPROPERTY(VisibleAnywhere)
-	int health;
+	float health;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector characterPosition;
 };
