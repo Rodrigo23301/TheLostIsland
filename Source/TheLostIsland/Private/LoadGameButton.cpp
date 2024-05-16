@@ -11,13 +11,11 @@ ULoadGameButton::ULoadGameButton()
 
 void ULoadGameButton::ClickedButton()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BotonClickeado se ha disparado"));
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));
+	FString slotName;
 
 	if (auto baseGameInstance = Cast<UBaseGameInstance>(GetGameInstance()))
 	{
-		baseGameInstance->LoadGame();
+		GetName(slotName);
+		baseGameInstance->LoadGame(slotName);
 	}
 }
