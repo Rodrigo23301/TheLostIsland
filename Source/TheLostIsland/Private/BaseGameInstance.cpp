@@ -17,20 +17,20 @@ void UBaseGameInstance::Init()
 	Super::Init();
 
 	//Load the game
-	LoadGame();
+	LoadGame("Slot1");
 }
 
-void UBaseGameInstance::CreateSaveFile()
+void UBaseGameInstance::CreateSaveFile(FString slotName)
 {
 	//Create a SaveGame object and save to the default slot
 	USaveGameData* dataToSave = Cast<USaveGameData>(UGameplayStatics::CreateSaveGameObject(USaveGameData::StaticClass()));
-	UGameplayStatics::SaveGameToSlot(dataToSave, "Slot1", 0);
+	UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 }
 
-void UBaseGameInstance::SaveGame()
+void UBaseGameInstance::SaveGame(FString slotName)
 {
 	//Initializa data to save
-	USaveGameData* dataToSave = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot("Slot1", 0));
+	USaveGameData* dataToSave = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
 	FVector position = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
 	//If there is a valid SaveGame object to use for saving
@@ -38,19 +38,19 @@ void UBaseGameInstance::SaveGame()
 	{
 		dataToSave->characterPosition = position;
 		dataToSave->health = currentHealth;
-		UGameplayStatics::SaveGameToSlot(dataToSave, "Slot1", 0);
+		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
-	else if (!UGameplayStatics::DoesSaveGameExist("Slot1", 0))
+	else if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
 	{
 		//Create a default save file
-		CreateSaveFile();
+		CreateSaveFile(slotName);
 	}
 }
 
-void UBaseGameInstance::LoadGame()
+void UBaseGameInstance::LoadGame(FString slotName)
 {
 	//Retrieve data to load
-	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot("Slot1", 0));
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
 
 	//Cast to MyCharacter
 	ACharacter* MyCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -69,9 +69,9 @@ void UBaseGameInstance::LoadGame()
 		}
 		currentHealth = dataToLoad->health;
 	}
-	else if (!UGameplayStatics::DoesSaveGameExist("Slot1", 0))
+	else if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
 	{
 		//Create a default save file
-		CreateSaveFile();
+		CreateSaveFile(slotName);
 	}
 }
