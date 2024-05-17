@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SaveGameData.h"
 #include "Engine/GameInstance.h"
 #include "BaseGameInstance.generated.h"
 
@@ -32,4 +33,8 @@ public:
 	void SaveGame(FString slotName);
 
 	void LoadGame(FString slotName);
+
+	TArray<FBuildings> SaveBuildings();
+
+	void LoadBuildings(TArray<FBuildings> buildings);
 };
