@@ -6,6 +6,22 @@
 #include "GameFramework/SaveGame.h"
 #include "SaveGameData.generated.h"
 
+
+USTRUCT()
+struct FBuildings
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString nameClass;
+
+	UPROPERTY()
+	FVector position;
+
+	UPROPERTY()
+	FRotator rotation;
+};
+
 /**
  * 
  */
@@ -22,4 +38,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FVector characterPosition;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FBuildings> everyBuildMaster;
 };
