@@ -31,6 +31,18 @@ void UBaseGameInstance::CreateSaveFile(FString slotName)
 	UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 }
 
+void UBaseGameInstance::CreateSaveFile(FString slotName, FVector position, float health, TArray<FBuildings> buildings)
+{
+	//Create a SaveGame object and save to the default slot
+	USaveGameData* dataToSave = Cast<USaveGameData>(UGameplayStatics::CreateSaveGameObject(USaveGameData::StaticClass()));
+
+	dataToSave->characterPosition = position;
+	dataToSave->health = health;
+	dataToSave->everyBuildMaster = buildings;
+
+	UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
+}
+
 void UBaseGameInstance::SaveGame(FString slotName)
 {
 	//Initializa data to save
@@ -55,7 +67,7 @@ void UBaseGameInstance::SaveGame(FString slotName)
 	else if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
 	{
 		//Create a default save file
-		CreateSaveFile(slotName);
+		CreateSaveFile(slotName, position, currentHealth, SaveBuildings());
 	}
 
 	//Take Screenshot
