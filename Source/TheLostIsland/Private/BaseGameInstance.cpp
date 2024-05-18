@@ -49,9 +49,6 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//Buildings
 		dataToSave->everyBuildMaster = SaveBuildings();
 
-		//Take Screenshot
-		SaveScreenshot(slotName);
-
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
@@ -60,6 +57,9 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//Create a default save file
 		CreateSaveFile(slotName);
 	}
+
+	//Take Screenshot
+	SaveScreenshot(slotName);
 }
 
 void UBaseGameInstance::LoadGame(FString slotName)
