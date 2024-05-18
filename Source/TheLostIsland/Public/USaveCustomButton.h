@@ -15,11 +15,12 @@ class THELOSTISLAND_API UUSaveCustomButton : public UButton
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere)
+	FVector PlayerLocation;
+
 	UUSaveCustomButton();
 
 	UFUNCTION()
 	void ClickedButton();
 
-	UPROPERTY(EditAnywhere)
-	FVector PlayerLocation;
 };
