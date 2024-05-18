@@ -42,4 +42,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentHealthBySlot(FString slotName);
+
+	bool CheckEnabledSlot(FString slotName);
 };
