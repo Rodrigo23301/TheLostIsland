@@ -19,4 +19,7 @@ public:
 
 	UFUNCTION()
 	void ClickedButton();
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckEnabled();
 };

@@ -19,3 +19,17 @@ void ULoadGameButton::ClickedButton()
 		baseGameInstance->LoadGame(slotName);
 	}
 }
+
+bool ULoadGameButton::CheckEnabled()
+{
+	FString slotName;
+	bool enabled = false;
+
+	if (auto baseGameInstance = Cast<UBaseGameInstance>(GetGameInstance()))
+	{
+		GetName(slotName);
+		enabled = baseGameInstance->CheckEnabledSlot(slotName);
+	}
+
+	return enabled;
+}
