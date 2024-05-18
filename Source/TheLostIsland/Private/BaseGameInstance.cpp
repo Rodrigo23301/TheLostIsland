@@ -206,4 +206,16 @@ float UBaseGameInstance::GetCurrentHealthBySlot(FString slotName) {
 	return health;
 }
 
+bool UBaseGameInstance::CheckEnabledSlot(FString slotName) {
+	bool enabled = false;
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
+
+	if (dataToLoad)
+	{
+		enabled = true;
+	}
+
+	return enabled;
+}
+
 
