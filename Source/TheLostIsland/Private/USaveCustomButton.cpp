@@ -9,13 +9,12 @@ UUSaveCustomButton::UUSaveCustomButton()
 	OnClicked.AddDynamic(this, &UUSaveCustomButton::ClickedButton);
 
 	PlayerLocation = FVector(0.f, 0.f, 0.f);
+	SetIsEnabled(false);
 }
 
 void UUSaveCustomButton::ClickedButton()
 {
 	FString slotName;
-
-	
 
 	if (auto baseGameInstance = Cast<UBaseGameInstance>(GetGameInstance()))
 	{
