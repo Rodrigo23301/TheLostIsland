@@ -198,4 +198,12 @@ void UBaseGameInstance::SaveScreenshot(FString slotName)
 	}
 }
 
+float UBaseGameInstance::GetCurrentHealthBySlot(FString slotName) {
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
+
+	float health = dataToLoad->health;
+
+	return health;
+}
+
 

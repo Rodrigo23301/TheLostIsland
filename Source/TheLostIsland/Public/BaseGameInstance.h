@@ -39,4 +39,7 @@ public:
 	void LoadBuildings(TArray<FBuildings> buildings);
 
 	void SaveScreenshot(FString slotName);
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentHealthBySlot(FString slotName);
 };
