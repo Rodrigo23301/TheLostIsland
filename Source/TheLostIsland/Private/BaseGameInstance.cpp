@@ -172,15 +172,15 @@ void UBaseGameInstance::SaveScreenshot(FString slotName)
 	FString filename = "";
 	if (slotName == "Slot1")
 	{
-		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot1.png");
+		filename = FPaths::ProjectDir() + TEXT("Saved/Screenshots/screenshotSlot1.png");
 	}
 	else if (slotName == "Slot2")
 	{
-		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot2.png");
+		filename = FPaths::ProjectDir() + TEXT("Saved/Screenshots/screenshotSlot2.png");
 	}
 	else if (slotName == "Slot3")
 	{
-		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot3.png");
+		filename = FPaths::ProjectDir() + TEXT("Saved/Screenshots/screenshotSlot3.png");
 	}
 
 	// Save bytes on file
