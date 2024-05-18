@@ -37,4 +37,6 @@ public:
 	TArray<FBuildings> SaveBuildings();
 
 	void LoadBuildings(TArray<FBuildings> buildings);
+
+	void SaveScreenshot(FString slotName);
 };

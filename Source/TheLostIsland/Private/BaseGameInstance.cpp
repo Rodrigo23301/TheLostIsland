@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "BuildMasterBase.h"
 #include "Engine/Engine.h"
+#include "ImageUtils.h"
+#include "LoadScreenshot.h"
 
 UBaseGameInstance::UBaseGameInstance() 
 {
@@ -46,6 +48,9 @@ void UBaseGameInstance::SaveGame(FString slotName)
 
 		//Buildings
 		dataToSave->everyBuildMaster = SaveBuildings();
+
+		//Take Screenshot
+		SaveScreenshot(slotName);
 
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
@@ -132,3 +137,65 @@ void UBaseGameInstance::LoadBuildings(TArray<FBuildings> buildings)
 		}
 	}
 }
+
+void UBaseGameInstance::SaveScreenshot(FString slotName)
+{
+	// Get Viewport Size
+	FVector2D size = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+
+	// Create a texture to save the screenshot
+	UTexture2D* textura = UTexture2D::CreateTransient(size.X, size.Y, PF_B8G8R8A8);
+
+	// Read Window pixels
+	TArray<FColor> pixels;
+	pixels.SetNumUninitialized(size.X * size.Y);
+	FReadSurfaceDataFlags flags;
+	GEngine->GameViewport->Viewport->ReadPixels(pixels, flags, FIntRect(0, 0, size.X, size.Y));
+
+	// Controll access to bytes
+	FByteBulkData& bulkData = textura->PlatformData->Mips[0].BulkData;
+	bulkData.Lock(LOCK_READ_WRITE);
+	FColor* bulkDataPtr = reinterpret_cast<FColor*>(bulkData.Realloc(pixels.Num() * sizeof(FColor)));
+	for (int32 i = 0; i < pixels.Num(); i++)
+	{
+		bulkDataPtr[i] = pixels[i];
+	}
+	bulkData.Unlock();
+
+	// Update texture
+	textura->UpdateResource();
+
+	TArray<uint8> bytes;
+	FImageUtils::CompressImageArray(size.X, size.Y, pixels, bytes);
+
+	// Create Filename
+	FString filename = "";
+	if (slotName == "Slot1")
+	{
+		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot1.png");
+	}
+	else if (slotName == "Slot2")
+	{
+		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot2.png");
+	}
+	else if (slotName == "Slot3")
+	{
+		filename = FPaths::ProjectDir() + TEXT("Screenshot/screenshotSlot3.png");
+	}
+
+	// Save bytes on file
+	if (!FFileHelper::SaveArrayToFile(bytes, *filename))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save screenshot to %s"), *filename);
+	}
+	else
+	{
+		for (TObjectIterator<ULoadScreenshot> It; It; ++It)
+		{
+			FString name = *It->GetName();
+			It->ChargeScreenshot(name);
+		}
+	}
+}
+
+
