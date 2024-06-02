@@ -37,6 +37,12 @@ public:
 	float health;
 
 	UPROPERTY(VisibleAnywhere)
+	float hunger;
+
+	UPROPERTY(VisibleAnywhere)
+	float thirst;
+
+	UPROPERTY(VisibleAnywhere)
 	FVector characterPosition;
 
 	UPROPERTY(VisibleAnywhere)
