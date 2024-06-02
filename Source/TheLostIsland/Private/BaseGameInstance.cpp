@@ -62,6 +62,12 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//Health
 		dataToSave->health = currentHealth;
 
+		//Hunger
+		dataToSave->hunger = currentHunger;
+
+		//Thirst
+		dataToSave->thirst = currentThirst;
+
 		//Buildings
 		dataToSave->everyBuildMaster = SaveBuildings();
 
@@ -98,7 +104,12 @@ void UBaseGameInstance::LoadGame(FString slotName)
 		{
 			MyCharacter->SetActorLocation(dataToLoad->characterPosition, bSweep, &OutSweepHitResult, Teleport);
 		}
+
 		currentHealth = dataToLoad->health;
+
+		currentHunger = dataToLoad->hunger;
+
+		currentThirst = dataToLoad->thirst;
 
 		LoadBuildings(dataToLoad->everyBuildMaster);
 	}
