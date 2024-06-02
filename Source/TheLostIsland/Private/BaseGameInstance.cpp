@@ -13,7 +13,11 @@
 UBaseGameInstance::UBaseGameInstance() 
 {
 	maxHealth = 100.f;
-	currentHealth = 100.f;
+	currentHealth = maxHealth;
+	maxHunger = 100.f;
+	currentHunger = maxHunger;
+	maxThirst = 100.f;
+	currentThirst = maxThirst;
 }
 
 void UBaseGameInstance::Init()

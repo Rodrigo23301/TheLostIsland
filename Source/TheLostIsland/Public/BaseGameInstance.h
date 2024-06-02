@@ -24,6 +24,18 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
 	float currentHealth;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Hunger")
+	float maxHunger;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Hunger")
+	float currentHunger;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Thirst")
+	float maxThirst;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Thirst")
+	float currentThirst;
+
 	UBaseGameInstance();
 
 	virtual void Init() override;
