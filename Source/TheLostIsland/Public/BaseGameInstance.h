@@ -57,5 +57,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentHealthBySlot(FString slotName);
 
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentHungerBySlot(FString slotName);
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentThirstBySlot(FString slotName);
+
 	bool CheckEnabledSlot(FString slotName);
 };

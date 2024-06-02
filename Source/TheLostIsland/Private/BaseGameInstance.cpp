@@ -237,6 +237,30 @@ float UBaseGameInstance::GetCurrentHealthBySlot(FString slotName) {
 	return health;
 }
 
+float UBaseGameInstance::GetCurrentHungerBySlot(FString slotName) {
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
+	float hunger = 0.f;
+
+	if (dataToLoad)
+	{
+		hunger = dataToLoad->hunger;
+	}
+
+	return hunger;
+}
+
+float UBaseGameInstance::GetCurrentThirstBySlot(FString slotName) {
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
+	float thirst = 0.f;
+
+	if (dataToLoad)
+	{
+		thirst = dataToLoad->thirst;
+	}
+
+	return thirst;
+}
+
 bool UBaseGameInstance::CheckEnabledSlot(FString slotName) {
 	bool enabled = false;
 	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
