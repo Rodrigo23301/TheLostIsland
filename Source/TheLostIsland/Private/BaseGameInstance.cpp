@@ -130,6 +130,10 @@ TArray<FBuildings> UBaseGameInstance::SaveBuildings() {
 		UGameplayStatics::GetAllActorsOfClass(World, ABuildMasterBase::StaticClass(), foundActors);
 		for (AActor* Actor : foundActors)
 		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Edificio guardado: ") + Actor->GetName());
+			}
 			FBuildings newStruct;
 			newStruct.nameClass = Actor->GetClass()->GetPathName();
 			newStruct.position = Actor->GetActorLocation();
