@@ -6,6 +6,8 @@
 #include "SaveGameData.h"
 #include "GameFramework/Character.h"
 #include "BuildMasterBase.h"
+#include "InteractableActor.h"
+#include "ChopableActor.h"
 #include "Engine/Engine.h"
 #include "ImageUtils.h"
 #include "LoadScreenshot.h"
@@ -18,14 +20,23 @@ UBaseGameInstance::UBaseGameInstance()
 	currentHunger = maxHunger;
 	maxThirst = 100.f;
 	currentThirst = maxThirst;
+	slotToCharge = "PreloadedSlot";
 }
 
 void UBaseGameInstance::Init()
 {
 	Super::Init();
 
-	//Load the game
-	//LoadGame("Slot1");
+	FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UBaseGameInstance::HandleLevelLoaded);
+}
+
+void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::InitializationValues IVS)
+{
+	if (World->GetMapName() == "UEDPIE_0_mainMap")
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.1f, false);
+	}
 }
 
 void UBaseGameInstance::CreateSaveFile(FString slotName)
@@ -71,6 +82,10 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//Buildings
 		dataToSave->everyBuildMaster = SaveBuildings();
 
+		dataToSave->everyInteractable = SaveInteractables();
+
+		dataToSave->everyChopable = SaveChopables();
+
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
@@ -86,8 +101,14 @@ void UBaseGameInstance::SaveGame(FString slotName)
 
 void UBaseGameInstance::LoadGame(FString slotName)
 {
+	//Open loading map
+	UGameplayStatics::OpenLevel(this, "LoadingMap", true);
+}
+
+void UBaseGameInstance::LoadedGame()
+{
 	//Retrieve data to load
-	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));
+	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotToCharge, 0));
 
 	//Cast to MyCharacter
 	ACharacter* MyCharacter = Cast<ACharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -112,11 +133,10 @@ void UBaseGameInstance::LoadGame(FString slotName)
 		currentThirst = dataToLoad->thirst;
 
 		LoadBuildings(dataToLoad->everyBuildMaster);
-	}
-	else if (!UGameplayStatics::DoesSaveGameExist(slotName, 0))
-	{
-		//Create a default save file
-		CreateSaveFile(slotName);
+
+		LoadInteractables(dataToLoad->everyInteractable);
+
+		LoadChopables(dataToLoad->everyChopable);
 	}
 }
 
@@ -130,10 +150,6 @@ TArray<FBuildings> UBaseGameInstance::SaveBuildings() {
 		UGameplayStatics::GetAllActorsOfClass(World, ABuildMasterBase::StaticClass(), foundActors);
 		for (AActor* Actor : foundActors)
 		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Edificio guardado: ") + Actor->GetName());
-			}
 			FBuildings newStruct;
 			newStruct.nameClass = Actor->GetClass()->GetPathName();
 			newStruct.position = Actor->GetActorLocation();
@@ -168,6 +184,97 @@ void UBaseGameInstance::LoadBuildings(TArray<FBuildings> buildings)
 		}
 	}
 }
+
+TArray<FInteractable> UBaseGameInstance::SaveInteractables()
+{
+	TArray<FInteractable> interactableActors;
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		TArray<AActor*> foundActors;
+		UGameplayStatics::GetAllActorsOfClass(World, AInteractableActor::StaticClass(), foundActors);
+		for (AActor* Actor : foundActors)
+		{
+			FInteractable newStruct;
+			newStruct.nameClass = Actor->GetClass()->GetPathName();
+			newStruct.position = Actor->GetActorLocation();
+			interactableActors.Add(newStruct);
+
+		}
+	}
+
+	return interactableActors;
+}
+
+void UBaseGameInstance::LoadInteractables(TArray<FInteractable> interactableActors)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		for (FInteractable actor : interactableActors)
+		{
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(actor.position);
+			SpawnTransform.SetRotation(FQuat::Identity);
+			SpawnTransform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+			UClass* MyActorClass = LoadObject<UClass>(nullptr, *actor.nameClass);
+			if (MyActorClass)
+			{
+				World->SpawnActor<AActor>(MyActorClass, SpawnTransform, SpawnParams);
+			}
+		}
+	}
+}
+
+TArray<FChopable> UBaseGameInstance::SaveChopables()
+{
+	TArray<FChopable> chopableActors;
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		TArray<AActor*> foundActors;
+		UGameplayStatics::GetAllActorsOfClass(World, AChopableActor::StaticClass(), foundActors);
+		for (AActor* Actor : foundActors)
+		{
+			FChopable newStruct;
+			newStruct.nameClass = Actor->GetClass()->GetPathName();
+			newStruct.position = Actor->GetActorLocation();
+			chopableActors.Add(newStruct);
+
+		}
+	}
+
+	return chopableActors;
+}
+
+void UBaseGameInstance::LoadChopables(TArray<FChopable> chopableActors)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		for (FChopable actor : chopableActors)
+		{
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(actor.position);
+			SpawnTransform.SetRotation(FQuat::Identity);
+			SpawnTransform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+			UClass* MyActorClass = LoadObject<UClass>(nullptr, *actor.nameClass);
+			if (MyActorClass)
+			{
+				AActor* SpawnedActor = World->SpawnActor<AActor>(MyActorClass, SpawnTransform, SpawnParams);
+			}
+		}
+	}
+}
+
 
 void UBaseGameInstance::SaveScreenshot(FString slotName)
 {
@@ -228,6 +335,44 @@ void UBaseGameInstance::SaveScreenshot(FString slotName)
 		}
 	}
 }
+
+FString UBaseGameInstance::GetSaveGamePath(const FString& NombreArchivo)
+{
+	// Get saved path
+	FString savedPath = FPaths::ProjectSavedDir();
+
+	// Build files path
+	FString completePath = savedPath + TEXT("/SaveGames/") + NombreArchivo + TEXT(".sav");
+
+	return completePath;
+}
+
+void UBaseGameInstance::LoadLastGame()
+{
+	FString lastFile;
+	FDateTime lastDate = FDateTime::MinValue();
+
+	// Find last modificated file
+	for (int32 i = 1; i <= 3; ++i)
+	{
+		FString fileName = FString::Printf(TEXT("Slot%d"), i);
+		
+		if (UGameplayStatics::DoesSaveGameExist(fileName, 0))
+		{
+			FString filePath = GetSaveGamePath(fileName);
+			IFileManager& FileManager = IFileManager::Get();
+			FDateTime fileDate = FileManager.GetTimeStamp(*filePath);
+
+			// Check file date
+			if (fileDate > lastDate)
+			{
+				lastDate = fileDate;
+				slotToCharge = fileName;
+			}
+		}
+	}
+}
+
 
 float UBaseGameInstance::GetCurrentHealthBySlot(FString slotName) {
 	USaveGameData* dataToLoad = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(slotName, 0));

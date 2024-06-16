@@ -18,6 +18,8 @@ class THELOSTISLAND_API UBaseGameInstance : public UGameInstance
 public:
 	FVector characterPosition;
 
+	FString slotToCharge;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float maxHealth;
 
@@ -48,11 +50,21 @@ public:
 
 	void LoadGame(FString slotName);
 
-	TArray<FBuildings> SaveBuildings();
+	void LoadedGame();
 
+	TArray<FBuildings> SaveBuildings();
 	void LoadBuildings(TArray<FBuildings> buildings);
 
+	TArray<FInteractable> SaveInteractables();
+	void LoadInteractables(TArray<FInteractable> chopableActors);
+
+	TArray<FChopable> SaveChopables();
+	void LoadChopables(TArray<FChopable> chopableActors);
+
 	void SaveScreenshot(FString slotName);
+
+	FString GetSaveGamePath(const FString& NombreArchivo);
+	void LoadLastGame();
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentHealthBySlot(FString slotName);
@@ -64,4 +76,6 @@ public:
 	float GetCurrentThirstBySlot(FString slotName);
 
 	bool CheckEnabledSlot(FString slotName);
+
+	void HandleLevelLoaded(UWorld* World, const UWorld::InitializationValues IVS);
 };

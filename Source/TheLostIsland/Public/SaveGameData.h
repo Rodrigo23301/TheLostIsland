@@ -22,6 +22,30 @@ struct FBuildings
 	FRotator rotation;
 };
 
+USTRUCT()
+struct FInteractable
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString nameClass;
+
+	UPROPERTY()
+	FVector position;
+};
+
+USTRUCT()
+struct FChopable
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString nameClass;
+
+	UPROPERTY()
+	FVector position;
+};
+
 /**
  * 
  */
@@ -47,4 +71,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<FBuildings> everyBuildMaster;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FInteractable> everyInteractable;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FChopable> everyChopable;
 };
