@@ -47,6 +47,22 @@ struct FChopable
 	FVector position;
 };
 
+USTRUCT()
+struct FNonPlayerCharacter
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString nameClass;
+
+	UPROPERTY()
+	FVector position;
+
+	UPROPERTY()
+	float currentHealth;
+};
+
+
 USTRUCT(BlueprintType)
 struct FSSerializedObjectData
 {
@@ -117,4 +133,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<int32> quantitiesInventory;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FNonPlayerCharacter> everyNonPlayerCharacter;
 };

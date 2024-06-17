@@ -72,6 +72,9 @@ public:
 	bool DeserializeFSObjectData(const FSSerializedObjectData& SerializedData, FS_objectData& ObjectData);
 	bool SerializeFSObjectData(const FS_objectData& ObjectData, FSSerializedObjectData& SerializedData);
 
+	TArray<FNonPlayerCharacter> SaveNPCs();
+	void LoadNPCs(TArray<FNonPlayerCharacter> nonPlayerCharacters);
+
 	void SaveScreenshot(FString slotName);
 
 	FString GetSaveGamePath(const FString& NombreArchivo);

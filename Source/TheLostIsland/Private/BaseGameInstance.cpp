@@ -8,6 +8,7 @@
 #include "BuildMasterBase.h"
 #include "InteractableActor.h"
 #include "ChopableActor.h"
+#include "characterNPC.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "UniqueItem.h"
@@ -24,14 +25,14 @@ UBaseGameInstance::UBaseGameInstance()
 	maxThirst = 100.f;
 	currentThirst = maxThirst;
 	slotToCharge = "PreloadedSlot";
-	isLoaded = false;
+	isLoaded = true;
 }
 
 void UBaseGameInstance::Init()
 {
 	Super::Init();
 
-	FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UBaseGameInstance::HandleLevelLoaded);
+	//FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UBaseGameInstance::HandleLevelLoaded);
 }
 
 void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::InitializationValues IVS)
@@ -94,6 +95,8 @@ void UBaseGameInstance::SaveGame(FString slotName)
 
 		dataToSave->quantitiesInventory = SaveQuantities();
 
+		dataToSave->everyNonPlayerCharacter = SaveNPCs();
+
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
@@ -150,6 +153,8 @@ void UBaseGameInstance::LoadedGame()
 		LoadInventory(dataToLoad->inventory);
 
 		LoadQuantities(dataToLoad->quantitiesInventory);
+		
+		LoadNPCs(dataToLoad->everyNonPlayerCharacter);
 
 		isLoaded = true;
 	}
@@ -459,6 +464,60 @@ bool UBaseGameInstance::SerializeFSObjectData(const FS_objectData& ObjectData, F
 	return true;
 }
 
+TArray<FNonPlayerCharacter> UBaseGameInstance::SaveNPCs()
+{
+	TArray<FNonPlayerCharacter> nonPlayerCharacters;
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		TArray<AActor*> foundActors;
+		UGameplayStatics::GetAllActorsOfClass(World, AcharacterNPC::StaticClass(), foundActors);
+
+		for (AActor* Actor : foundActors)
+		{
+			AcharacterNPC* NPC = Cast<AcharacterNPC>(Actor);
+			if (NPC)
+			{
+				FNonPlayerCharacter newStruct;
+				newStruct.nameClass = NPC->GetClass()->GetPathName();
+				newStruct.position = NPC->GetActorLocation();
+				newStruct.currentHealth = NPC->currentHealth;
+				nonPlayerCharacters.Add(newStruct);
+			}
+		}
+	}
+
+	return nonPlayerCharacters;
+}
+
+void UBaseGameInstance::LoadNPCs(TArray<FNonPlayerCharacter> nonPlayerCharacters)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		for (FNonPlayerCharacter character : nonPlayerCharacters)
+		{
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(character.position);
+			SpawnTransform.SetRotation(FQuat::Identity);
+			SpawnTransform.SetScale3D(FVector(1.0f, 1.0f, 1.0f));
+
+			UClass* MyActorClass = LoadObject<UClass>(nullptr, *character.nameClass);
+			if (MyActorClass)
+			{
+				AActor* SpawnedActor = World->SpawnActor<AActor>(MyActorClass, SpawnTransform, SpawnParams);
+				AcharacterNPC* SpawnedCharacter = Cast<AcharacterNPC>(SpawnedActor);
+				if (SpawnedCharacter)
+				{
+					SpawnedCharacter->currentHealth = character.currentHealth;
+				}
+			}
+		}
+	}
+}
 
 
 void UBaseGameInstance::SaveScreenshot(FString slotName)
