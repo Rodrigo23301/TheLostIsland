@@ -68,4 +68,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FS_objectData> inventoryData;
 
+	UPROPERTY(BlueprintReadWrite)
+	TArray<int32> quantity;
+
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SaveGameData.h"
+#include "InventoryController.h"
 #include "Engine/GameInstance.h"
 #include "BaseGameInstance.generated.h"
 
@@ -38,6 +39,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Thirst")
 	float currentThirst;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Load")
+	bool isLoaded;
+
 	UBaseGameInstance();
 
 	virtual void Init() override;
@@ -60,6 +64,13 @@ public:
 
 	TArray<FChopable> SaveChopables();
 	void LoadChopables(TArray<FChopable> chopableActors);
+
+	TArray<FSSerializedObjectData> SaveInventory();
+	TArray<int32> SaveQuantities();
+	void LoadInventory(TArray<FSSerializedObjectData>& serializedInventory);
+	void LoadQuantities(TArray<int32> quantities);
+	bool DeserializeFSObjectData(const FSSerializedObjectData& SerializedData, FS_objectData& ObjectData);
+	bool SerializeFSObjectData(const FS_objectData& ObjectData, FSSerializedObjectData& SerializedData);
 
 	void SaveScreenshot(FString slotName);
 

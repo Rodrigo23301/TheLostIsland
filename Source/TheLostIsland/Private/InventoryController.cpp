@@ -11,8 +11,6 @@ AInventoryController::AInventoryController()
 
 	// Asumiendo que FS_objectData tiene un constructor predeterminado adecuado
 	inventoryData.Init(FS_objectData(), 21);
-
-
 }
 
 // Called when the game starts or when spawned

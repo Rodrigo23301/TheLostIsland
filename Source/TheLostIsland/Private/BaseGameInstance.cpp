@@ -8,6 +8,9 @@
 #include "BuildMasterBase.h"
 #include "InteractableActor.h"
 #include "ChopableActor.h"
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "UniqueItem.h"
 #include "Engine/Engine.h"
 #include "ImageUtils.h"
 #include "LoadScreenshot.h"
@@ -21,6 +24,7 @@ UBaseGameInstance::UBaseGameInstance()
 	maxThirst = 100.f;
 	currentThirst = maxThirst;
 	slotToCharge = "PreloadedSlot";
+	isLoaded = false;
 }
 
 void UBaseGameInstance::Init()
@@ -86,6 +90,10 @@ void UBaseGameInstance::SaveGame(FString slotName)
 
 		dataToSave->everyChopable = SaveChopables();
 
+		dataToSave->inventory = SaveInventory();
+
+		dataToSave->quantitiesInventory = SaveQuantities();
+
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
@@ -102,6 +110,7 @@ void UBaseGameInstance::SaveGame(FString slotName)
 void UBaseGameInstance::LoadGame(FString slotName)
 {
 	//Open loading map
+	slotToCharge = slotName;
 	UGameplayStatics::OpenLevel(this, "LoadingMap", true);
 }
 
@@ -137,6 +146,12 @@ void UBaseGameInstance::LoadedGame()
 		LoadInteractables(dataToLoad->everyInteractable);
 
 		LoadChopables(dataToLoad->everyChopable);
+
+		LoadInventory(dataToLoad->inventory);
+
+		LoadQuantities(dataToLoad->quantitiesInventory);
+
+		isLoaded = true;
 	}
 }
 
@@ -274,6 +289,176 @@ void UBaseGameInstance::LoadChopables(TArray<FChopable> chopableActors)
 		}
 	}
 }
+
+TArray<FSSerializedObjectData> UBaseGameInstance::SaveInventory()
+{
+	TArray<FSSerializedObjectData> serializedInventory;
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		TArray<AActor*> foundActors;
+		UGameplayStatics::GetAllActorsOfClass(World, AInventoryController::StaticClass(), foundActors);
+
+		if (foundActors.Num() > 0)
+		{
+			AInventoryController* InventoryController = Cast<AInventoryController>(foundActors[0]);
+			if (InventoryController)
+			{
+				for (const FS_objectData& ObjectData : InventoryController->inventoryData)
+				{
+					FSSerializedObjectData SerializedData;
+					if (SerializeFSObjectData(ObjectData, SerializedData))
+					{
+						serializedInventory.Add(SerializedData);
+					}
+				}
+			}
+		}
+	}
+
+	return serializedInventory;
+}
+
+void UBaseGameInstance::LoadInventory(TArray<FSSerializedObjectData>& serializedInventory)
+{
+    UWorld* World = GetWorld();
+
+    if (World)
+    {
+        TArray<AActor*> foundActors;
+        UGameplayStatics::GetAllActorsOfClass(World, AInventoryController::StaticClass(), foundActors);
+
+        if (foundActors.Num() > 0)
+        {
+            AInventoryController* InventoryController = Cast<AInventoryController>(foundActors[0]);
+            if (InventoryController)
+            {
+                TArray<FS_objectData> loadedInventory;
+                for (const FSSerializedObjectData& Data : serializedInventory)
+                {
+                    FS_objectData ObjectData;
+                    if (DeserializeFSObjectData(Data, ObjectData))
+                    {
+                        loadedInventory.Add(ObjectData);
+						if (ObjectData.Image)
+						{
+							FString TexturePath = ObjectData.Image->GetPathName();
+						}
+                    }
+                }
+                InventoryController->inventoryData = loadedInventory;
+            }
+        }
+    }
+}
+
+TArray<int32> UBaseGameInstance::SaveQuantities()
+{
+	TArray<int32> quantities;
+	TArray<UUserWidget*> WidgetInstances;
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), WidgetInstances, UUniqueItem::StaticClass(), false);
+
+	// Ahora WidgetInstances contiene todas las instancias de UUniqueItem
+	for (UUserWidget* Widget : WidgetInstances)
+	{
+		UUniqueItem* UniqueWidgetItem = Cast<UUniqueItem>(Widget);
+		if (UniqueWidgetItem)
+		{
+			FString WidgetName = UniqueWidgetItem->GetName();
+			quantities.Add(UniqueWidgetItem->quantityItem);
+		}
+	}
+
+	return quantities;
+}
+
+void UBaseGameInstance::LoadQuantities(TArray<int32> quantities)
+{
+	TArray<UUserWidget*> widgetInstances;
+
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), widgetInstances, UUniqueItem::StaticClass(), false);
+
+	TArray<UUniqueItem*> uniqueWidgets;
+
+	// Ahora WidgetInstances contiene todas las instancias de UUniqueItem
+	for (UUserWidget* widget : widgetInstances)
+	{
+		UUniqueItem* UniqueWidgetItem = Cast<UUniqueItem>(widget);
+		if (UniqueWidgetItem)
+		{
+			uniqueWidgets.Add(UniqueWidgetItem);
+		}
+	}
+
+	for (int32 i = 0; i < quantities.Num(); i++) 
+	{
+		if (uniqueWidgets.IsValidIndex(i)) 
+		{
+			uniqueWidgets[i]->quantityItem = quantities[i];
+			uniqueWidgets[i]->SynchronizeProperties();
+			UE_LOG(LogTemp, Error, TEXT("AAAAAAAAAAADDDDDDDDDDDDSSSSSSSSS: %d"), uniqueWidgets[i]->quantityItem);
+		}
+	}
+}
+
+bool UBaseGameInstance::DeserializeFSObjectData(const FSSerializedObjectData& SerializedData, FS_objectData& ObjectData)
+{
+	// Deserializar datos de texto
+	ObjectData.Name = FText::FromString(SerializedData.Name);
+	ObjectData.Subname = FText::FromString(SerializedData.Subname);
+	ObjectData.Description = FText::FromString(SerializedData.Description);
+
+	// Deserializar referencias a objetos y clases
+	UClass* ObjectClass = FindObject<UClass>(ANY_PACKAGE, *SerializedData.ClassPath);
+	if (ObjectClass != nullptr)
+	{
+		ObjectData.OjectClass = ObjectClass;
+	}
+
+	AActor* Object = FindObject<AActor>(ANY_PACKAGE, *SerializedData.ObjectPath);
+	if (Object != nullptr)
+	{
+		ObjectData.Object = Object;
+	}
+
+	UTexture2D* Image = FindObject<UTexture2D>(ANY_PACKAGE, *SerializedData.ImagePath);
+	if (Image != nullptr)
+	{
+		ObjectData.Image = Image;
+	}
+
+	UStaticMesh* StaticMesh = FindObject<UStaticMesh>(ANY_PACKAGE, *SerializedData.StaticMeshPath);
+	if (StaticMesh != nullptr)
+	{
+		ObjectData.StaticMesh = StaticMesh;
+	}
+
+	// Deserializar cantidad máxima
+	ObjectData.maxQuantity = SerializedData.MaxQuantity;
+
+	return true;
+}
+
+bool UBaseGameInstance::SerializeFSObjectData(const FS_objectData& ObjectData, FSSerializedObjectData& SerializedData)
+{
+	// Serializar datos de texto
+	SerializedData.Name = ObjectData.Name.ToString();
+	SerializedData.Subname = ObjectData.Subname.ToString();
+	SerializedData.Description = ObjectData.Description.ToString();
+
+	// Serializar referencias a objetos y clases
+	SerializedData.ClassPath = ObjectData.OjectClass ? ObjectData.OjectClass->GetPathName() : TEXT("");
+	SerializedData.ObjectPath = ObjectData.Object ? ObjectData.Object->GetPathName() : TEXT("");
+	SerializedData.ImagePath = ObjectData.Image ? ObjectData.Image->GetPathName() : TEXT("");
+	SerializedData.StaticMeshPath = ObjectData.StaticMesh ? ObjectData.StaticMesh->GetPathName() : TEXT("");
+
+	// Serializar cantidad máxima
+	SerializedData.MaxQuantity = ObjectData.maxQuantity;
+
+	return true;
+}
+
 
 
 void UBaseGameInstance::SaveScreenshot(FString slotName)
