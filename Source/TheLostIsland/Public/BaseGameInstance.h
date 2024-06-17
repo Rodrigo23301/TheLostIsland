@@ -19,6 +19,7 @@ class THELOSTISLAND_API UBaseGameInstance : public UGameInstance
 public:
 	FVector characterPosition;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Slots")
 	FString slotToCharge;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")

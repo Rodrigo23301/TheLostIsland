@@ -24,15 +24,15 @@ UBaseGameInstance::UBaseGameInstance()
 	currentHunger = maxHunger;
 	maxThirst = 100.f;
 	currentThirst = maxThirst;
-	slotToCharge = "PreloadedSlot";
-	isLoaded = true;
+	slotToCharge = "Preloaded";
+	isLoaded = false;
 }
 
 void UBaseGameInstance::Init()
 {
 	Super::Init();
 
-	//FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UBaseGameInstance::HandleLevelLoaded);
+	FWorldDelegates::OnPreWorldInitialization.AddUObject(this, &UBaseGameInstance::HandleLevelLoaded);
 }
 
 void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::InitializationValues IVS)
@@ -40,7 +40,7 @@ void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::Initializ
 	if (World->GetMapName() == "UEDPIE_0_mainMap")
 	{
 		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.1f, false);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.2f, false);
 	}
 }
 
