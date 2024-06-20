@@ -24,7 +24,7 @@ UBaseGameInstance::UBaseGameInstance()
 	currentHunger = maxHunger;
 	maxThirst = 100.f;
 	currentThirst = maxThirst;
-	slotToCharge = "Preloaded";
+	slotToCharge = "Preload";
 	isLoaded = false;
 }
 
@@ -37,10 +37,14 @@ void UBaseGameInstance::Init()
 
 void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::InitializationValues IVS)
 {
-	if (World->GetMapName() == "UEDPIE_0_mainMap")
+	FString mapName = World->GetMapName();
+	bool prefixRemoved = mapName.RemoveFromStart(World->StreamingLevelsPrefix);
+
+	if (prefixRemoved && mapName == "mainMap")
 	{
+		UE_LOG(LogTemp, Error, TEXT("Hola Mundo"));
 		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.2f, false);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.4f, false);
 	}
 	else
 	{
@@ -147,8 +151,6 @@ void UBaseGameInstance::LoadedGame()
 		LoadQuantities(dataToLoad->quantitiesInventory);
 		
 		LoadNPCs(dataToLoad->everyNonPlayerCharacter);
-
-		isLoaded = true;
 	}
 }
 
@@ -394,7 +396,6 @@ void UBaseGameInstance::LoadQuantities(TArray<int32> quantities)
 		{
 			uniqueWidgets[i]->quantityItem = quantities[i];
 			uniqueWidgets[i]->SynchronizeProperties();
-			UE_LOG(LogTemp, Error, TEXT("AAAAAAAAAAADDDDDDDDDDDDSSSSSSSSS: %d"), uniqueWidgets[i]->quantityItem);
 		}
 	}
 }
