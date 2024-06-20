@@ -49,8 +49,6 @@ public:
 
 	void CreateSaveFile(FString slotName);
 
-	void CreateSaveFile(FString slotName, FVector position, float health, TArray<FBuildings> buildings);
-
 	void SaveGame(FString slotName);
 
 	void LoadGame(FString slotName);
