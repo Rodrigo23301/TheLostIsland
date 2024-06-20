@@ -73,26 +73,25 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//Position
 		dataToSave->characterPosition = position;
 
-		//Health
+		//Health, Hunger and Thirst
 		dataToSave->health = currentHealth;
-
-		//Hunger
 		dataToSave->hunger = currentHunger;
-
-		//Thirst
 		dataToSave->thirst = currentThirst;
 
 		//Buildings
 		dataToSave->everyBuildMaster = SaveBuildings();
 
+		//Interactables
 		dataToSave->everyInteractable = SaveInteractables();
 
+		//Chopables
 		dataToSave->everyChopable = SaveChopables();
 
+		//Inventory
 		dataToSave->inventory = SaveInventory();
-
 		dataToSave->quantitiesInventory = SaveQuantities();
 
+		//NPCs
 		dataToSave->everyNonPlayerCharacter = SaveNPCs();
 
 		//Save Game
