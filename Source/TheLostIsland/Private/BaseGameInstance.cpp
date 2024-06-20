@@ -94,12 +94,12 @@ void UBaseGameInstance::SaveGame(FString slotName)
 		//NPCs
 		dataToSave->everyNonPlayerCharacter = SaveNPCs();
 
+		//Take Screenshot
+		SaveScreenshot(slotName);
+
 		//Save Game
 		UGameplayStatics::SaveGameToSlot(dataToSave, slotName, 0);
 	}
-
-	//Take Screenshot
-	SaveScreenshot(slotName);
 }
 
 void UBaseGameInstance::LoadGame(FString slotName)
