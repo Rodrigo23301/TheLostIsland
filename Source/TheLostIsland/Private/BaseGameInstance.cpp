@@ -42,6 +42,10 @@ void UBaseGameInstance::HandleLevelLoaded(UWorld* World, const UWorld::Initializ
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UBaseGameInstance::LoadedGame, 0.2f, false);
 	}
+	else
+	{
+		isLoaded = true;
+	}
 }
 
 void UBaseGameInstance::CreateSaveFile(FString slotName)
